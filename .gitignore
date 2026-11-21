@@ -1,0 +1,23 @@
+# Gradle / Android 构建产物
+build/
+.gradle/
+*.apk
+*.aab
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 本机绝对路径，不入库
+local.properties
+
+# 签名密钥：公开仓库不带私钥，本地保留即可
+keystore/*.keystore
+
+# 体积较大的设计源文件（用 icon-preview.png 代替）
+icon-source.png
+
+# 系统杂项
+.DS_Store
+Thumbs.db

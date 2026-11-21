@@ -1,0 +1,7 @@
+# 复制为 local.properties 后按本机情况填写。
+# Android SDK 位置（含 platforms/android-36 与 build-tools）
+sdk.dir=/path/to/android-sdk
+
+# 可选：在 arm64 Android 设备上构建时，官方 aapt2 无法运行，
+# 需要指向本机编译的 aapt2；Linux / macOS 上留空即可。
+# android.aapt2FromMavenOverride=/path/to/aapt2
