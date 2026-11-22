@@ -131,7 +131,7 @@ public final class EventLibrary {
         EVENTS.add(new EventDef("candle", "短烛", "烛",
                 "墙龛里剩半截蜡烛，火苗贴着地面烧，把影子拉得很长。影子比你先动，抬手扶了一下灯芯。",
                 new Choice("吹灭它", "失去 5 生命，获得 60 金币"),
-                new Choice("添一根灯芯", "最大生命 +4，回复 4 生命"),
+                new Choice("添一根灯芯（12 金币）", "最大生命 +4，回复 4 生命"),
                 new Choice("对着火苗许愿", "失去 3 生命，获得一瓶药水")));
 
         /* ============ 幕锁事件（act = 0..3） ============ */
@@ -155,6 +155,36 @@ public final class EventLibrary {
                 new Choice("签下名字", "最大生命 +8，牌组多两张诅咒"),
                 new Choice("折断这支笔", "获得 130 金币，随机移除一张牌"),
                 new Choice("留白不写", "回复 20 生命。")));
+        EVENTS.add(new EventDef("broken_sentence", "断句", "句",
+                "走到一半，前面那句话忽然断了。断口很整齐，像是被人用指甲掐的。你可以替它补完，也可以让它一直断着。",
+                new Choice("补完它", "获得一张随机卡牌，最大生命 -3"),
+                new Choice("让它断着", "获得 45 金币"),
+                new Choice("抄下来带走（20 金币）", "随机升级一张牌")));
+        EVENTS.add(new EventDef("ink_bone", "墨骨", "骨",
+                "一根用墨凝成的骨头，比手掌略短。它还是温的，像刚从谁身上取下来。",
+                new Choice("吞下去", "最大生命 +5，失去 5 生命"),
+                new Choice("磨成一根针", "移除一张随机牌，获得一瓶药水"),
+                new Choice("埋进墙缝", "回复 8 生命")));
+        EVENTS.add(EventDef.of("twin_pages", 0, "双页", "双",
+                "同一页出现了两次，连墨晕都一样。你翻来覆去地看，分不清哪一页是原本，哪一页是抄的。",
+                new Choice("撕掉一页", "移除一张随机牌，获得 60 金币"),
+                new Choice("两页都留着", "复制一张随机牌，最大生命 -4"),
+                new Choice("合上不管", "什么也不发生。")));
+        EVENTS.add(EventDef.of("silent_price", 1, "静默的价", "价",
+                "书架之间有个声音在开价。它不收金币，只收声音与记忆。你听见自己在别处低声说话。",
+                new Choice("用声音换一件遗物", "最大生命 -6，获得一件遗物"),
+                new Choice("用记忆换金币", "移除一张随机牌，获得 90 金币"),
+                new Choice("不交易", "什么也不发生。")));
+        EVENTS.add(EventDef.of("spire_nail", 2, "塔尖的钉子", "钉",
+                "最高处钉着一枚铁钉，钉帽上刻着一行小字，被磨得只剩半个字。钉子还在往里走，很慢。",
+                new Choice("拔下来", "失去 10 生命，获得一件遗物"),
+                new Choice("再敲深一点", "最大生命 +8"),
+                new Choice("绕开它", "获得 35 金币")));
+        EVENTS.add(EventDef.of("signature", 3, "署名", "署",
+                "最后一页空着署名。纸面很平，笔已经递到你手里，墨还没有干。",
+                new Choice("签上真名", "最大生命 +10，失去 12 生命"),
+                new Choice("签别人的名字", "获得 120 金币"),
+                new Choice("不签", "回复 12 生命")));
     }
 
     private EventLibrary() {}
@@ -240,7 +270,7 @@ public final class EventLibrary {
                 if (index == 1) {
                     if (run.gold < 65) return "商人把卡牌收了回去。";
                     run.gold -= 65;
-                    CardDef c = rareCard(rng);
+                    CardDef c = rareCard(rng, run.characterId);
                     run.deck.add(new CardInstance(c));
                     return "你买下了「" + c.name + "」。";
                 }
@@ -262,7 +292,7 @@ public final class EventLibrary {
                     return "书柜轰然倒下。你被划伤了，但捡到了 120 金币。";
                 }
                 if (index == 1) {
-                    CardDef c = commonCard(rng);
+                    CardDef c = commonCard(rng, run.characterId);
                     run.deck.add(new CardInstance(c));
                     return "你抽出一本薄册，得到「" + c.name + "」。";
                 }
@@ -276,7 +306,7 @@ public final class EventLibrary {
                 if (index == 1) {
                     if (run.deck.size() <= 1) return "你的牌组太薄，朝圣者拒绝交换。";
                     CardInstance removed = run.deck.remove(rng.nextInt(run.deck.size()));
-                    CardDef c = rareCard(rng);
+                    CardDef c = rareCard(rng, run.characterId);
                     run.deck.add(new CardInstance(c));
                     return "「" + removed.name() + "」被换成了「" + c.name + "」。";
                 }
@@ -567,6 +597,92 @@ public final class EventLibrary {
                 run.heal(20);
                 return "你让横线空着。纸慢慢凉下去，回复 20 生命。";
 
+            /* ---------------- 新增：断句 / 墨骨 / 双页 / 静默的价 / 钉子 / 署名 ---------------- */
+            case "broken_sentence":
+                if (index == 0) {
+                    CardDef bc = run.randomAnyCard();
+                    if (bc == null) return "断口自己合上了。";
+                    run.addCard(bc, false);
+                    run.addMaxHp(-3, false);
+                    run.hp = Math.max(1, run.hp);
+                    return "你补完了那句话，纸因此厚了一点。获得「" + bc.name + "」，最大生命 -3。";
+                }
+                if (index == 1) { run.gainGold(45); return "你让它断着。断口处掉出几枚旧币。获得 45 金币。"; }
+                if (run.gold < 20) return "你摸了摸口袋，连一页纸也抄不起。";
+                run.gold -= 20;
+                CardInstance bu = upgradeRandom(run);
+                return bu == null ? "你抄了一遍，但每一页都已经写满。" : "「" + bu.name() + "」被重新誊写了一遍。";
+            case "ink_bone":
+                if (index == 0) {
+                    if (!canPayHp(run, 5)) return "骨头太硬，你咽不下去。";
+                    run.loseHp(5);
+                    run.addMaxHp(5, true);
+                    return "骨头在胃里化开。最大生命 +5，失去 5 生命。";
+                }
+                if (index == 1) {
+                    if (run.deck.size() <= 1) return "你的牌组太薄，磨不出针。";
+                    CardInstance gone = run.removeRandomCard();
+                    PotionDef p = PotionLibrary.random(rng);
+                    run.addPotion(p.id);
+                    return "「" + gone.name() + "」被磨成了一根针。获得「" + p.name + "」。";
+                }
+                run.heal(8);
+                return "你把它埋进墙缝。伤口凉了下来，回复 8 生命。";
+            case "twin_pages":
+                if (index == 0) {
+                    if (run.deck.size() <= 1) return "两页都是原本，你不敢撕。";
+                    CardInstance gone = run.removeRandomCard();
+                    run.gainGold(60);
+                    return "「" + gone.name() + "」被撕成碎片。获得 60 金币。";
+                }
+                if (index == 1) {
+                    if (run.deck.isEmpty()) return "你手里没有可以复制的页。";
+                    CardInstance src = run.deck.get(rng.nextInt(run.deck.size()));
+                    run.deck.add(src.copy());
+                    run.addMaxHp(-4, false);
+                    run.hp = Math.max(1, run.hp);
+                    return "两页都留着，书变厚了。「" + src.name() + "」多了一份，最大生命 -4。";
+                }
+                return "你合上它，继续往上走。";
+            case "silent_price":
+                if (index == 0) {
+                    if (!canPayHp(run, 6)) return "声音缩了回去，价格你付不起。";
+                    run.loseHp(6);
+                    RelicDef r = RelicLibrary.random(rng, run.relics);
+                    if (r == null) return "它拿走了你的声音，什么也没给。";
+                    run.addRelic(r.id);
+                    return "你听见自己少了一种语气。失去 6 生命，获得「" + r.name + "」。";
+                }
+                if (index == 1) {
+                    if (run.deck.size() <= 1) return "记忆太薄，换不了价。";
+                    CardInstance gone = run.removeRandomCard();
+                    run.gainGold(90);
+                    return "「" + gone.name() + "」从记忆里被抽走。获得 90 金币。";
+                }
+                return "你什么也没卖。声音安静下来。";
+            case "spire_nail":
+                if (index == 0) {
+                    if (!canPayHp(run, 10)) return "钉子纹丝不动，你的手先流血了。";
+                    run.loseHp(10);
+                    RelicDef r = RelicLibrary.random(rng, run.relics);
+                    if (r == null) return "钉子拔出来了，底下什么也没有。";
+                    run.addRelic(r.id);
+                    return "钉子带着一小块石头离开塔顶。失去 10 生命，获得「" + r.name + "」。";
+                }
+                if (index == 1) { run.addMaxHp(8, true); return "钉子又进了一寸，塔身稳住了一些。最大生命 +8。"; }
+                run.gainGold(35);
+                return "你贴着墙绕过去，脚边掉下几枚硬币。获得 35 金币。";
+            case "signature":
+                if (index == 0) {
+                    if (!canPayHp(run, 12)) return "笔尖悬在纸上，终究没有落下。";
+                    run.loseHp(12);
+                    run.addMaxHp(10, true);
+                    return "名字渗进纸里。最大生命 +10，失去 12 生命。";
+                }
+                if (index == 1) { run.gainGold(120); return "你写了一个不属于自己的名字。纸认了，金币也认了。获得 120 金币。"; }
+                run.heal(12);
+                return "你放下笔。纸慢慢变凉，回复 12 生命。";
+
             default:
                 return "";
         }
@@ -584,17 +700,19 @@ public final class EventLibrary {
         return c;
     }
 
-    private static CardDef commonCard(Random rng) {
-        while (true) {
-            CardDef c = CardLibrary.randomReward(rng);
+    private static CardDef commonCard(Random rng, String characterId) {
+        for (int i = 0; i < 120; i++) {
+            CardDef c = CardLibrary.randomReward(rng, characterId);
             if (c.rarity == Rarity.COMMON) return c;
         }
+        return CardLibrary.randomReward(rng, characterId);
     }
 
-    private static CardDef rareCard(Random rng) {
-        while (true) {
-            CardDef c = CardLibrary.randomReward(rng);
+    private static CardDef rareCard(Random rng, String characterId) {
+        for (int i = 0; i < 120; i++) {
+            CardDef c = CardLibrary.randomReward(rng, characterId);
             if (c.rarity == Rarity.RARE) return c;
         }
+        return CardLibrary.randomReward(rng, characterId);
     }
 }

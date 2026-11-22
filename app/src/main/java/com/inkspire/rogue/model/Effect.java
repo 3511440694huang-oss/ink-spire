@@ -30,6 +30,7 @@ public final class Effect {
     public static Effect damage(int amount, int hits) { return new Effect(Kind.DAMAGE, amount, hits, null, Target.ENEMY, 1); }
     public static Effect heavy(int amount, int strengthMultiplier) { return new Effect(Kind.DAMAGE, amount, 1, null, Target.ENEMY, strengthMultiplier); }
     public static Effect damageAll(int amount) { return new Effect(Kind.DAMAGE_ALL, amount, 1, null, Target.ALL_ENEMIES, 1); }
+    public static Effect damageAll(int amount, int hits) { return new Effect(Kind.DAMAGE_ALL, amount, hits, null, Target.ALL_ENEMIES, 1); }
     public static Effect damageRandom(int amount, int hits) { return new Effect(Kind.DAMAGE_RANDOM, amount, hits, null, Target.ENEMY, 1); }
     public static Effect damageX(int amount) { return new Effect(Kind.DAMAGE_X, amount, 1, null, Target.ALL_ENEMIES, 1); }
     public static Effect bodySlam() { return new Effect(Kind.DAMAGE_BLOCK, 0, 1, null, Target.ENEMY, 1); }
@@ -52,7 +53,7 @@ public final class Effect {
     public String describe() {
         switch (kind) {
             case DAMAGE: return (hits > 1 ? hits + "×" + amount : amount + "") + "伤害";
-            case DAMAGE_ALL: return amount + "伤害(全体)";
+            case DAMAGE_ALL: return (hits > 1 ? hits + "×" + amount : amount + "") + "伤害(全体)";
             case DAMAGE_RANDOM: return hits + "×" + amount + "随机伤害";
             case DAMAGE_X: return "X×" + amount + "伤害(全体)";
             case DAMAGE_BLOCK: return "伤害=格挡";

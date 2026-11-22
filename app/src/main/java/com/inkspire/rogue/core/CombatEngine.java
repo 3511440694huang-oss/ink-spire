@@ -32,13 +32,15 @@ public final class CombatEngine {
     private int damageThisCard;
     private int killsThisCard;
     private int xSpent;
+    /** 本张牌的一次性加伤（遗物「初墨」等），结算完立刻清零。 */
+    private int boostThisCard;
 
     public CombatEngine(CombatState state) { this.c = state; }
 
     public void start() {
         c.turn = 1;
         c.playerTurn = true;
-        c.energy = c.maxEnergy + c.rFirstTurnEnergy;
+        c.energy = c.maxEnergy + c.rFirstTurnEnergy + c.rEnergyPerTurn;
         applyCombatStartRelics();
         if (c.freeFirstPowerOwned) c.necronomiconReady = true;
         chooseIntents();
@@ -61,6 +63,10 @@ public final class CombatEngine {
             if (d.startPoison > 0) {
                 for (EnemyState e : c.living()) e.addStatus(Status.POISON, d.startPoison);
             }
+            if (d.startWeakAll > 0) {
+                for (EnemyState e : c.living()) e.addStatus(Status.WEAK, d.startWeakAll);
+                c.log("「" + d.name + "」使所有敌人陷入虚弱。");
+            }
             if (d.loseHpStart > 0) loseHp(d.loseHpStart, true);
         }
     }
@@ -79,7 +85,7 @@ public final class CombatEngine {
         if (card == null || c.over || !c.playerTurn) return false;
         if (!c.hand.contains(card)) return false;
         if (card.def.type == CardType.CURSE || card.def.type == CardType.STATUS) return false;
-        if (card.def.xCost) return true;
+        if (card.def.xCost) return Cheats.infiniteEnergy || c.energy > 0;
         return Cheats.infiniteEnergy || currentCost(card) <= c.energy;
     }
 
@@ -107,6 +113,7 @@ public final class CombatEngine {
         killsThisCard = 0;
         boolean isAttack = card.def.type == CardType.ATTACK;
         if (isAttack) c.attacksPlayed++;
+        boostThisCard = (isAttack && c.attacksPlayed == 1) ? c.rFirstAttackBonus : 0;
         boolean penNib = isAttack && c.penNibReady;
         if (penNib) { c.penNibReady = false; c.penNibCount = 0; }
         int repeats = isAttack && c.playerStatus(Status.DOUBLE_TAP) > 0 ? 2 : 1;
@@ -138,6 +145,7 @@ public final class CombatEngine {
             }
         }
 
+        boostThisCard = 0;
         if (card.def.type == CardType.POWER) {
             c.powers.add(card);
         } else if (card.exhaust() || (c.playerStatus(Status.CORRUPTION) > 0 && card.def.type == CardType.SKILL)) {
@@ -249,7 +257,8 @@ public final class CombatEngine {
 
     public void attackEnemy(EnemyState target, int base, int strMultiplier, boolean penNib) {
         if (target == null || !target.alive()) return;
-        int dmg = base + c.playerStatus(Status.STRENGTH) * Math.max(1, strMultiplier) + c.rAttackBonus;
+        int dmg = base + c.playerStatus(Status.STRENGTH) * Math.max(1, strMultiplier)
+                + c.rAttackBonus + boostThisCard;
         if (c.playerStatus(Status.WEAK) > 0) dmg = (int) Math.floor(dmg * 0.75);
         if (target.status(Status.VULNERABLE) > 0) dmg = (int) Math.floor(dmg * 1.5);
         if (penNib) dmg *= 2;
@@ -362,15 +371,9 @@ public final class CombatEngine {
         tickPlayer(Status.FRAIL);
         tickPlayer(Status.DOUBLE_TAP);
 
-        // 3) 回合结束触发的格挡/回血（在敌人行动前生效）
+        // 3) 回合结束触发的格挡（在敌人行动前生效）；再生统一在回合开始结算
         if (c.playerStatus(Status.METALLICIZE) > 0) gainBlock(c.playerStatus(Status.METALLICIZE));
         if (c.rBlockPerTurn > 0) gainBlock(c.rBlockPerTurn);
-        if (c.playerStatus(Status.REGEN) > 0) {
-            int r = c.playerStatus(Status.REGEN);
-            int before = c.hp;
-            c.hp = Math.min(c.maxHp, c.hp + r);
-            if (c.hp > before) c.log("再生回复 " + (c.hp - before) + "。");
-        }
 
         // 4) 敌人行动
         for (EnemyState e : c.enemies) {
@@ -416,6 +419,12 @@ public final class CombatEngine {
         c.turn++;
         c.playerTurn = true;
         c.noDraw = false;
+        int shackleBack = c.playerStatus(Status.SHACKLE);
+        if (shackleBack > 0) {
+            c.addPlayerStatus(Status.STRENGTH, shackleBack);
+            c.playerStatuses.remove(Status.SHACKLE);
+            c.log("枷锁松开，力量恢复。");
+        }
         c.energy = c.maxEnergy + c.playerStatus(Status.BERSERK) + c.rEnergyPerTurn;
         if (c.playerStatus(Status.DEMON_FORM) > 0) c.addPlayerStatus(Status.STRENGTH, c.playerStatus(Status.DEMON_FORM));
         if (c.rStrengthPerTurn > 0) c.addPlayerStatus(Status.STRENGTH, c.rStrengthPerTurn);
@@ -433,13 +442,6 @@ public final class CombatEngine {
             c.draw(1);
         }
         if (c.playerStatus(Status.REGEN) > 0) c.hp = Math.min(c.maxHp, c.hp + c.playerStatus(Status.REGEN));
-        // 诅咒牌：回合开始时若仍在手牌
-        for (CardInstance h : new ArrayList<>(c.hand)) {
-            if (h.def.handTurnStartWeak > 0) {
-                c.addPlayerStatus(Status.WEAK, h.def.handTurnStartWeak);
-                c.log("「" + h.name() + "」让你虚弱 " + h.def.handTurnStartWeak + "。");
-            }
-        }
         c.draw(5 + c.rDrawPerTurn);
         chooseIntents();
         c.log("—— 第 " + c.turn + " 回合 ——");
@@ -468,6 +470,15 @@ public final class CombatEngine {
                     break;
                 case APPLY_ENEMY:
                 case APPLY_ALL:
+                    if (ef.status == Status.SHACKLE) {
+                        int n = Math.max(0, ef.amount);
+                        if (n > 0) {
+                            c.addPlayerStatus(Status.STRENGTH, -n);
+                            c.addPlayerStatus(Status.SHACKLE, n);
+                            c.log("你的力量 -" + n + "。");
+                        }
+                        break;
+                    }
                     c.addPlayerStatus(ef.status, ef.amount);
                     c.log("你获得「" + ef.status.label + " " + ef.amount + "」。");
                     break;
@@ -564,6 +575,26 @@ public final class CombatEngine {
                 c.maxHp += d.amount;
                 c.hp += d.amount;
                 break;
+            case IRON_SKIN:
+                c.addPlayerStatus(Status.STRENGTH, d.amount);
+                c.addPlayerStatus(Status.DEXTERITY, d.amount);
+                break;
+            case BLOCK_DRAW:
+                gainBlock(d.amount);
+                c.draw(2);
+                break;
+            case HEAL_THORNS:
+                int hb = c.hp;
+                c.hp = Math.min(c.maxHp, c.hp + d.amount);
+                if (c.hp > hb) c.log("回复 " + (c.hp - hb) + " 生命。");
+                c.addPlayerStatus(Status.THORNS, 3);
+                break;
+            case WEAK_VULN_ALL:
+                for (EnemyState e : c.living()) {
+                    e.addStatus(Status.WEAK, d.amount);
+                    e.addStatus(Status.VULNERABLE, d.amount);
+                }
+                break;
             case CLEANSE:
                 c.playerStatuses.remove(Status.WEAK);
                 c.playerStatuses.remove(Status.VULNERABLE);
@@ -573,6 +604,11 @@ public final class CombatEngine {
                 break;
         }
         c.log("使用药水「" + d.name + "」。");
+        if (c.rPotionHeal > 0) {
+            int before = c.hp;
+            c.hp = Math.min(c.maxHp, c.hp + c.rPotionHeal);
+            if (c.hp > before) c.log("回复 " + (c.hp - before) + " 生命。");
+        }
         if (c.living().isEmpty()) endCombat(true);
         else if (c.hp <= 0) endCombat(false);
     }

@@ -49,8 +49,9 @@ public final class RelicLibrary {
                 "战斗开始时获得 1 点敏捷与 4 点格挡。", Rarity.COMMON, RelicDef.Hook.COMBAT_START)
                 .startDexterity(1).startBlock(4).build());
         add(RelicDef.of("iron_helm", "凹痕铁盔", "盔",
-                "战斗开始时获得 6 点格挡。", Rarity.COMMON, RelicDef.Hook.COMBAT_START)
-                .startBlock(6).build());
+                "战斗开始时获得 6 点格挡。战斗结束后回复 2 点生命。",
+                Rarity.COMMON, RelicDef.Hook.COMBAT_START)
+                .startBlock(6).postCombatHeal(2).build());
         add(RelicDef.of("whetstone", "磨石", "磨",
                 "你的每一次攻击额外造成 1 点伤害。", Rarity.COMMON, RelicDef.Hook.CARD_PLAY)
                 .attackBonus(1).build());
@@ -63,11 +64,24 @@ public final class RelicLibrary {
         add(RelicDef.of("thorn_charm", "带刺护符", "刺",
                 "战斗开始时获得 3 点荆棘。", Rarity.COMMON, RelicDef.Hook.COMBAT_START)
                 .startThorns(3).build());
+        add(RelicDef.of("note_shard", "残笺", "笺",
+                "每场战斗第一回合多抽 1 张牌。", Rarity.COMMON, RelicDef.Hook.COMBAT_START)
+                .startDraw(1).build());
+        add(RelicDef.of("wax_seal", "火漆印", "漆",
+                "拾取时最大生命 +3。", Rarity.COMMON, RelicDef.Hook.PICKUP)
+                .maxHp(3).build());
+        add(RelicDef.of("dry_brush", "秃笔", "笔",
+                "战斗结束后回复 3 点生命。", Rarity.COMMON, RelicDef.Hook.REWARD)
+                .postCombatHeal(3).build());
+        add(RelicDef.of("tin_lamp", "锡灯", "锡",
+                "战斗开始时获得 1 点力量与 2 点格挡。", Rarity.COMMON, RelicDef.Hook.COMBAT_START)
+                .startStrength(1).startBlock(2).build());
 
         /* ============ 罕见 ============ */
-        add(RelicDef.of("thorns_relic", "荆棘符", "棘",
-                "战斗开始时获得 3 点荆棘。", Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
-                .startThorns(3).build());
+        add(RelicDef.of("thorns_relic", "荆棘冠", "棘",
+                "战斗开始时获得 3 点荆棘。每回合结束时获得 2 点格挡。",
+                Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
+                .startThorns(3).blockPerTurn(2).build());
         add(RelicDef.of("regal_pillow", "帝王枕", "枕",
                 "在营火休息时额外回复 15 点生命。", Rarity.UNCOMMON, RelicDef.Hook.REST)
                 .restHeal(15).build());
@@ -90,8 +104,8 @@ public final class RelicLibrary {
                 "拾取后，之后获得的能力牌自动升级。", Rarity.UNCOMMON, RelicDef.Hook.PICKUP)
                 .eggPower().build());
         add(RelicDef.of("darkstone_periapt", "黑石坠饰", "坠",
-                "战斗开始时获得 1 点敏捷。", Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
-                .startDexterity(1).build());
+                "战斗开始时获得 2 点敏捷。", Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
+                .startDexterity(2).build());
         add(RelicDef.of("war_drum", "旧战鼓", "鼓",
                 "战斗开始时获得 2 点力量。", Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
                 .startStrength(2).build());
@@ -114,11 +128,30 @@ public final class RelicLibrary {
                 "每场战斗第一回合多抽 3 张牌。", Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
                 .startDraw(3).build());
         add(RelicDef.of("bloodstone", "血石", "石",
-                "战斗结束后若生命值低于一半，回复 8 点生命。", Rarity.UNCOMMON, RelicDef.Hook.REWARD)
-                .postCombatHealLow(8).build());
+                "战斗开始时失去 3 点生命，获得 1 点力量与 1 点敏捷。",
+                Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
+                .loseHpStart(3).startStrength(1).startDexterity(1).build());
         add(RelicDef.of("calm_bell", "定神铃", "铃",
                 "每回合结束时获得 3 点格挡。", Rarity.UNCOMMON, RelicDef.Hook.TURN_START)
                 .blockPerTurn(3).build());
+        add(RelicDef.of("ink_stone", "墨玉砚", "砚",
+                "每当你打出一张牌，获得 2 点格挡。", Rarity.UNCOMMON, RelicDef.Hook.CARD_PLAY)
+                .cardBlock(2).build());
+        add(RelicDef.of("moth_wing", "蛾翼", "蛾",
+                "战斗开始时失去 2 点生命，获得 2 点敏捷。",
+                Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
+                .loseHpStart(2).startDexterity(2).build());
+        add(RelicDef.of("bone_whistle", "骨哨", "哨",
+                "战斗开始时失去 2 点生命，获得 3 点力量。",
+                Rarity.UNCOMMON, RelicDef.Hook.COMBAT_START)
+                .loseHpStart(2).startStrength(3).build());
+        add(RelicDef.of("worn_compass", "旧罗盘", "罗",
+                "获得的金币增加 15%。", Rarity.UNCOMMON, RelicDef.Hook.GOLD)
+                .goldPercent(15).build());
+        add(RelicDef.of("page_marker", "护页签", "签",
+                "每当你抽到一张诅咒或状态牌，获得 3 点格挡。",
+                Rarity.UNCOMMON, RelicDef.Hook.NONE)
+                .statusBlock(3).build());
 
         /* ============ 稀有 ============ */
         add(RelicDef.of("necronomicon", "死灵之书", "书",
@@ -157,6 +190,17 @@ public final class RelicLibrary {
         add(RelicDef.of("needle_spool", "缝针线轴", "针",
                 "每回合开始时获得 1 点敏捷。", Rarity.RARE, RelicDef.Hook.TURN_START)
                 .dexterityPerTurn(1).build());
+        add(RelicDef.of("first_ink", "初墨", "初",
+                "每场战斗你的第一张攻击牌额外造成 8 点伤害。",
+                Rarity.RARE, RelicDef.Hook.CARD_PLAY)
+                .firstAttackBonus(8).build());
+        add(RelicDef.of("bitter_draught", "苦饮", "苦",
+                "每当你使用一瓶药水，回复 5 点生命。", Rarity.RARE, RelicDef.Hook.NONE)
+                .potionHeal(5).build());
+        add(RelicDef.of("silent_tide", "静潮", "潮",
+                "战斗开始时使所有敌人获得 2 层虚弱，并多抽 1 张牌。",
+                Rarity.RARE, RelicDef.Hook.COMBAT_START)
+                .startWeakAll(2).startDraw(1).build());
     }
 
     private RelicLibrary() {}

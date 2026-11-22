@@ -44,6 +44,7 @@ public final class CombatState {
 
     /* ---- 遗物在战斗内的聚合值（战斗开始时算一次） ---- */
     public int rEnergyPerTurn, rDrawPerTurn, rBlockPerTurn, rAttackBonus, rCardBlock, rCardPoison;
+    public int rFirstAttackBonus, rStatusBlock, rPotionHeal;
     public int rStrengthPerTurn, rDexterityPerTurn, rStartDraw, rFirstTurnEnergy, rPostCombatHeal, rPostCombatHealLow;
     public boolean penNibOwned, freeFirstPowerOwned;
 
@@ -105,6 +106,9 @@ public final class CombatState {
         s.rAttackBonus = rAttackBonus;
         s.rCardBlock = rCardBlock;
         s.rCardPoison = rCardPoison;
+        s.rFirstAttackBonus = rFirstAttackBonus;
+        s.rStatusBlock = rStatusBlock;
+        s.rPotionHeal = rPotionHeal;
         s.rStrengthPerTurn = rStrengthPerTurn;
         s.rDexterityPerTurn = rDexterityPerTurn;
         s.rStartDraw = rStartDraw;
@@ -135,6 +139,9 @@ public final class CombatState {
             rAttackBonus += d.attackBonus;
             rCardBlock += d.cardBlock;
             rCardPoison += d.cardPoison;
+            rFirstAttackBonus += d.firstAttackBonus;
+            rStatusBlock += d.statusBlock;
+            rPotionHeal += d.potionHeal;
             rStrengthPerTurn += d.strengthPerTurn;
             rDexterityPerTurn += d.dexterityPerTurn;
             rStartDraw += d.startDraw;
@@ -203,6 +210,15 @@ public final class CombatState {
             if (drawPile.isEmpty()) return;
             CardInstance drawn = drawPile.remove(drawPile.size() - 1);
             hand.add(drawn);
+            if (rStatusBlock > 0 && drawn.def != null
+                    && (drawn.def.type == CardType.STATUS || drawn.def.type == CardType.CURSE)) {
+                block += rStatusBlock;
+                log("抽到「" + drawn.def.name + "」，获得 " + rStatusBlock + " 点格挡。");
+            }
+            if (drawn.def != null && drawn.def.handTurnStartWeak > 0) {
+                addPlayerStatus(Status.WEAK, drawn.def.handTurnStartWeak);
+                log("「" + drawn.def.name + "」让你虚弱 " + drawn.def.handTurnStartWeak + "。");
+            }
             if (evolveAllowed && evolve > 0 && drawn.def != null && drawn.def.type == CardType.STATUS) {
                 log("进化：抽到状态牌，再抽 " + evolve + " 张。");
                 draw(evolve, false);

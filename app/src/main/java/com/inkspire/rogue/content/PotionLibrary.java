@@ -46,9 +46,19 @@ public final class PotionLibrary {
 
         /* ---- 攻击 ---- */
         add(new PotionDef("fire_ink", "爆燃墨", "燃",
-                "对所有敌人造成 20 点伤害。", PotionDef.Kind.FIRE, 20));
+                "对所有敌人造成 20 点基础伤害（受力量与易伤加成）。", PotionDef.Kind.FIRE, 20));
         add(new PotionDef("weak_ink", "滞涩墨", "滞",
                 "对所有敌人施加 2 层虚弱。", PotionDef.Kind.WEAK_ALL, 2));
+
+        /* ---- 复合 ---- */
+        add(new PotionDef("iron_ink", "铁墨", "铁",
+                "获得 1 点力量与 1 点敏捷。", PotionDef.Kind.IRON_SKIN, 1));
+        add(new PotionDef("veil_ink", "蔽目墨", "蔽",
+                "获得 10 点格挡，抽 2 张牌。", PotionDef.Kind.BLOCK_DRAW, 10));
+        add(new PotionDef("ember_ink", "余温墨", "余",
+                "回复 12 点生命，获得 3 层荆棘。", PotionDef.Kind.HEAL_THORNS, 12));
+        add(new PotionDef("fog_ink", "迷雾墨", "雾",
+                "使所有敌人获得 2 层虚弱与 2 层易伤。", PotionDef.Kind.WEAK_VULN_ALL, 2));
 
         /* ---- 毒 ---- */
         add(new PotionDef("poison_ink", "蚀心墨", "蚀",

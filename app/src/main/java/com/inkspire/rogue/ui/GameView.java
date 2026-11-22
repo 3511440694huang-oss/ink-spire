@@ -52,7 +52,7 @@ public final class GameView extends View {
     private static final int PAPER_3 = 0xFFDDD5C3;
     private static final int INK = 0xFF171512;
     private static final int INK_2 = 0xFF4C473D;
-    private static final int GRAY = 0xFF7B7467;
+    private static final int GRAY = 0xFF655F55;
     private static final int LIGHT = 0xFFB7AF9D;
     private static final int WHITE = 0xFFFBF8EF;
 
@@ -96,6 +96,10 @@ public final class GameView extends View {
     private String hintLine = "";
     private String suggestedUid = "";
     private String toast;
+    private String toastShown;
+    private final Runnable toastClear = () -> {
+        if (toast != null) { toast = null; invalidate(); }
+    };
     /** 托管：每张牌之间留出的间隔（毫秒），让血条/能量/日志的变化看得见。 */
     private static final int AUTO_STEP_MS = 300;
     /** 战斗结束后定格的时间（毫秒），看清最后一击再进奖励。 */
@@ -428,7 +432,7 @@ public final class GameView extends View {
             chip(c, w - pad - px(4.4f), pad, "作弊版 · 已解锁", true);
         }
 
-        drawTower(c, w / 2f, top + px(10.4f), Math.min(w * 0.62f, h * 0.31f));
+        drawTower(c, w / 2f, top + px(14.2f), Math.min(w * 0.44f, h * 0.23f));
 
         float by = h * 0.64f;
         float bh = Math.max(px(2.2f), h * 0.055f);
@@ -451,7 +455,7 @@ public final class GameView extends View {
         button(c, help, "玩法", false, true, () -> { helpBack = Screen.MENU; screen = Screen.HELP; helpPage = 0; invalidate(); });
         button(c, set, "设置", false, true, () -> { settingsBack = Screen.MENU; screen = Screen.SETTINGS; invalidate(); });
 
-        String foot = "离线 · 无动画 · 32 位兼容 · v1.2";
+        String foot = "离线 · 无动画 · 32 位兼容 · v1.3";
         textCenter(c, foot, w / 2f, h - pad * 0.8f, px(0.5f), GRAY, sans);
         if (lastRunSummary.length() > 0) {
             textCenter(c, lastRunSummary, w / 2f, h - pad * 0.8f - px(0.95f), px(0.55f), INK_2, serif);
@@ -488,8 +492,8 @@ public final class GameView extends View {
                     r.top + px(1.35f), px(1.15f), INK, serifBold, Paint.Align.LEFT);
             text(c, fit(d.title, px(0.6f), sans, r.width() - px(5.0f)), sx + sealR + px(0.7f),
                     r.top + px(2.15f), px(0.6f), GRAY, sans, Paint.Align.LEFT);
-            wrap(c, "「" + d.blurb + "」", r.left + px(0.85f), r.top + px(3.0f),
-                    r.width() - px(1.7f), px(0.62f), INK_2, px(0.95f), 2);
+            wrap(c, "「" + d.blurb + "」", r.left + px(5.4f), r.top + px(3.0f),
+                    r.width() - px(6.3f), px(0.62f), INK_2, px(0.95f), 2);
             String line = "生命 " + d.maxHp + "   ·   " + d.playstyle;
             text(c, fit(line, px(0.58f), sansBold, r.width() - px(8.0f)), r.left + px(0.85f),
                     r.bottom - px(1.35f), px(0.58f), INK, sansBold, Paint.Align.LEFT);
@@ -619,7 +623,7 @@ public final class GameView extends View {
             lxx += tw;
         }
         float mapTop = sy + px(4.15f);
-        float mapBottom = h - px(4.3f);
+        float mapBottom = h - px(4.65f);
         float rowH = (mapBottom - mapTop) / 12f;
         float laneStep = Math.min(w * 0.26f, px(5.6f));
         List<MapNode> available = run.availableNodes();
@@ -634,7 +638,7 @@ public final class GameView extends View {
                 float x2 = w / 2f + (to.lane - 1) * laneStep;
                 float y2 = mapBottom - to.row * rowH;
                 boolean active = current != null && n.id == current.id && contains(available, to.id);
-                if (n.visited) line(c, x1, y1, x2, y2, INK_2, px(0.08f));
+                if (n.visited) line(c, x1, y1, x2, y2, INK_2, px(0.15f));
                 else if (active) line(c, x1, y1, x2, y2, INK, px(0.10f));
                 else line(c, x1, y1, x2, y2, LIGHT, px(0.05f));
             }
@@ -646,22 +650,23 @@ public final class GameView extends View {
             boolean isCurrent = current != null && current.id == n.id;
             float r = n.type == NodeType.BOSS ? px(1.1f) : px(0.82f);
             if (isCurrent) {
+                // 当前节点：粗外环 + 实心反白，墨水屏上一眼能找到「我在哪」
                 paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(px(0.08f));
+                paint.setStrokeWidth(px(0.2f));
                 paint.setColor(INK);
-                c.drawCircle(x, y, r + px(0.36f), paint);
+                c.drawCircle(x, y, r + px(0.42f), paint);
             }
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(n.visited ? PAPER_3 : (avail ? WHITE : PAPER));
+            paint.setColor(isCurrent ? INK : (n.visited ? PAPER_3 : (avail ? WHITE : PAPER)));
             c.drawCircle(x, y, r, paint);
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeWidth(avail ? px(0.14f) : px(0.055f));
             paint.setColor(avail || isCurrent ? INK : LIGHT);
             c.drawCircle(x, y, r, paint);
-            int gc = avail || isCurrent ? INK : (n.visited ? GRAY : LIGHT);
+            int gc = isCurrent ? PAPER : (avail ? INK : (n.visited ? GRAY : LIGHT));
             textCenter(c, n.type.glyph, x, y + px(0.42f), n.type == NodeType.BOSS ? px(1.15f) : px(0.9f), gc, serifBold);
             if (avail) {
-                RectF hr = new RectF(x - r - px(0.5f), y - r - px(0.5f), x + r + px(0.5f), y + r + px(0.5f));
+                RectF hr = new RectF(x - r - px(1.0f), y - r - px(1.0f), x + r + px(1.0f), y + r + px(1.0f));
                 MapNode target = n;
                 hit(hr, () -> enterNode(target));
             }
@@ -861,7 +866,7 @@ public final class GameView extends View {
         float gapY = px(0.2f);
         float cellW = (w - pad * 2 - gapX * (cols - 1)) / cols;
         float cellH = (avail - gapY * (rows - 1)) / rows;
-        if (cellH > px(2.3f)) cellH = px(2.3f);
+        if (cellH > px(3.0f)) cellH = px(3.0f);
         if (cellH < px(0.9f)) cellH = px(0.9f);
         for (int i = 0; i < view.size(); i++) {
             CardInstance card = view.get(i);
@@ -949,7 +954,7 @@ public final class GameView extends View {
         float cellW = (w - pad * 2 - gap * (cols - 1)) / cols;
         float cellH = (bottom - top - gap * (rows - 1)) / rows;
         if (cellH < px(1.5f)) cellH = px(1.5f);
-        if (cellH > px(4.0f)) cellH = px(4.0f);
+        if (cellH > px(5.4f)) cellH = px(5.4f);
         for (int i = 0; i < run.relics.size(); i++) {
             RelicDef d = RelicLibrary.get(run.relics.get(i));
             if (d == null) continue;
@@ -1020,7 +1025,7 @@ public final class GameView extends View {
             wrap(c, "· 先删掉多余的打击，再考虑加牌。\n· 一费抽牌和格挡比想象中更值钱。\n· 看到精英前，留一点生命给意外。\n· 营火既可以休息，也可以升级关键牌。\n· 药水留着过首领，别在走廊里喝光。\n· 托管是参考，不是答案。",
                     pad, top + px(10.2f), w - pad * 2, px(0.72f), INK_2, px(1.15f), 7);
             text(c, "关于", pad, top + px(16.6f), px(0.95f), INK, serifBold, Paint.Align.LEFT);
-            wrap(c, "《墨塔》v1.2 · 离线单机 · 纯 Java 自绘 · 无动画 · 面向墨水屏与 32 位设备。卡牌机制借鉴《杀戮尖塔》，全部文本与绘制为原创。",
+            wrap(c, "《墨塔》v1.3 · 离线单机 · 纯 Java 自绘 · 无动画 · 面向墨水屏与 32 位设备。卡牌机制借鉴《杀戮尖塔》，全部文本与绘制为原创。",
                     pad, top + px(17.4f), w - pad * 2, px(0.66f), GRAY, px(1.05f), 4);
         }
         float by = h - px(2.7f);
@@ -1062,7 +1067,7 @@ public final class GameView extends View {
         wrap(c, "本作没有动画与音效。建议在系统中开启快速刷新；如出现残影，手动全刷一次即可。屏幕常亮已开启。",
                 pad, top + px(8.65f), w - pad * 2, px(0.6f), GRAY, px(0.95f), 3);
         text(c, "关于", pad, top + px(11.2f), px(0.78f), INK, sansBold, Paint.Align.LEFT);
-        wrap(c, "墨塔 v1.2 · 离线 · 32 位兼容\n卡牌机制致敬《杀戮尖塔》，全部文本与绘制为原创。\n构建版本：" + (BuildConfig.CHEAT ? "作弊版" : "标准版"),
+        wrap(c, "墨塔 v1.3 · 离线 · 32 位兼容\n卡牌机制致敬《杀戮尖塔》，全部文本与绘制为原创。\n构建版本：" + (BuildConfig.CHEAT ? "作弊版" : "标准版"),
                 pad, top + px(11.55f), w - pad * 2, px(0.62f), GRAY, px(0.98f), 4);
         if (BuildConfig.CHEAT) {
             RectF cheat = new RectF(w - pad - px(4.4f), h - px(4.8f), w - pad, h - px(3.1f));
@@ -1085,8 +1090,9 @@ public final class GameView extends View {
         if (engine == null || screen != Screen.COMBAT) return;
         CombatState s = engine.c;
         float headerY = pad;
-        text(c, "第 " + Math.max(1, run.floor) + " 层 · " + (s.boss ? "首领" : s.elite ? "精英" : "战斗"),
-                pad, headerY + px(1.15f), px(0.95f), INK, serifBold, Paint.Align.LEFT);
+        text(c, "第 " + Math.max(1, run.floor) + " 层 · " + (s.boss ? "首领" : s.elite ? "精英" : "战斗")
+                        + " · 回合 " + s.turn,
+                pad, headerY + px(1.15f), px(0.9f), INK, serifBold, Paint.Align.LEFT);
         RectF deckBtn = new RectF(w - pad - px(5.3f), headerY, w - pad - px(2.5f), headerY + px(1.35f));
         button(c, deckBtn, "牌组", false, true, () -> openDeck(DeckMode.VIEW, Screen.COMBAT, "牌组"));
         RectF autoBtn = new RectF(w - pad - px(8.8f), headerY, w - pad - px(5.75f), headerY + px(1.35f));
@@ -1099,12 +1105,12 @@ public final class GameView extends View {
         }
         hairline(c, headerY + px(1.55f));
 
-        float enemyTop = headerY + px(2.0f);
+        float enemyTop = headerY + px(2.6f);
         float enemyH = Math.min(px(8.7f), h * 0.315f);
         drawEnemies(c, enemyTop, enemyH);
 
         float py = enemyTop + enemyH + px(0.4f);
-        float ph = px(3.15f);
+        float ph = px(3.4f);
         drawPlayerPanel(c, py, ph);
 
         float logTop = py + ph + px(0.22f);
@@ -1117,7 +1123,7 @@ public final class GameView extends View {
         drawCombatFooter(c, footerTop);
 
         if (targetingCard != null) {
-            RectF banner = new RectF(pad, headerY + px(1.65f), w - pad, headerY + px(2.55f));
+            RectF banner = new RectF(pad, headerY + px(1.62f), w - pad, headerY + px(2.48f));
             fillRound(c, banner, INK, px(0.12f));
             textCenter(c, "选择目标 · 点选敌人", banner.centerX(), banner.centerY() + px(0.27f), px(0.62f), PAPER, sansBold);
         }
@@ -1217,24 +1223,32 @@ public final class GameView extends View {
         float rx = r.left + r.width() * 0.55f;
         text(c, "能量 " + engine.c.energy + " / " + engine.c.maxEnergy, rx, hpTop + px(0.85f), px(0.7f), INK, sansBold, Paint.Align.LEFT);
         text(c, "格挡 " + engine.c.block, rx + px(5.5f), hpTop + px(0.85f), px(0.7f), INK_2, sans, Paint.Align.LEFT);
-        textRight(c, "回合 " + engine.c.turn, r.right - px(0.55f), hpTop + px(0.85f), px(0.58f), GRAY, sans);
+        int expected = Math.max(0, engine.c.incomingDamage() - engine.c.block);
+        textRight(c, "预计受 " + expected, r.right - px(0.55f), hpTop + px(0.85f), px(0.62f),
+                expected > 0 ? INK : GRAY, sansBold);
         // status chips row
         float cx = r.left + px(0.55f);
-        float cy = r.top + px(1.72f);
+        float cy = r.top + px(1.95f);
         int count = 0;
+        int total = 0;
         for (Map.Entry<Status, Integer> en : engine.c.playerStatuses.entrySet()) {
-            if (cy + px(1.05f) > r.bottom - px(0.2f)) break;
+            if (en.getValue() != 0) total++;
+        }
+        for (Map.Entry<Status, Integer> en : engine.c.playerStatuses.entrySet()) {
+            if (en.getValue() == 0) continue;
             String label = en.getKey().label + " " + en.getValue();
-            float tw = textWidth(label, px(0.56f), sansBold) + px(0.65f);
+            float tw = textWidth(label, px(0.62f), sansBold) + px(0.7f);
             if (cx + tw > r.right - px(0.6f)) {
-                cx = r.left + px(0.55f);
-                cy += px(1.18f);
+                int rest = total - count;
+                if (rest > 0) {
+                    text(c, "+" + rest, cx, cy + px(0.82f), px(0.62f), GRAY, sansBold, Paint.Align.LEFT);
+                }
+                break;
             }
-            if (cy + px(1.05f) > r.bottom - px(0.2f)) break;
-            RectF chip = new RectF(cx, cy, cx + tw, cy + px(1.05f));
+            RectF chip = new RectF(cx, cy, cx + tw, cy + px(1.08f));
             fillRound(c, chip, en.getKey().turnsDown ? PAPER_3 : WHITE, px(0.15f));
             strokeRound(c, chip, LIGHT, px(0.05f), px(0.15f));
-            textCenter(c, label, chip.centerX(), chip.centerY() + px(0.24f), px(0.56f), INK_2, sansBold);
+            textCenter(c, label, chip.centerX(), chip.centerY() + px(0.25f), px(0.62f), INK_2, sansBold);
             cx += tw + px(0.4f);
             count++;
         }
@@ -1324,12 +1338,12 @@ public final class GameView extends View {
         text(c, fit(card.name(), px(0.7f), sansBold, r.right - tx - px(0.4f)), tx, r.top + px(0.8f),
                 px(0.7f), playable ? INK : GRAY, sansBold, Paint.Align.LEFT);
         text(c, card.def.type.label + (card.upgraded ? " · 升级" : ""), tx, r.top + px(1.35f),
-                px(0.5f), playable ? GRAY : LIGHT, sans, Paint.Align.LEFT);
+                px(0.56f), playable ? GRAY : GRAY, sans, Paint.Align.LEFT);
         float descTop = r.top + px(1.5f);
         // 行高富余时多给一行说明，避免格子高、字只有两行显得空。
         int descLines = (int) Math.max(2f, Math.min(4f, (r.height() - px(1.55f)) / px(0.8f)));
         wrap(c, card.description(), tx, descTop, r.right - tx - px(0.4f), px(0.56f),
-                playable ? INK_2 : LIGHT, px(0.8f), descLines);
+                playable ? INK_2 : GRAY, px(0.8f), descLines);
         if (recommended) {
             RectF seal = new RectF(r.right - px(1.25f), r.top + px(0.18f), r.right - px(0.25f), r.top + px(1.05f));
             fillRound(c, seal, INK, px(0.1f));
@@ -1621,6 +1635,16 @@ public final class GameView extends View {
         return false;
     }
 
+    /** 事件选项标价：只认标题里的「N 金币」，奖励文案不会被当成成本。 */
+    private static int goldCostOf(String label) {
+        if (label == null) return 0;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)\\s*金币").matcher(label);
+        if (m.find()) {
+            try { return Integer.parseInt(m.group(1)); } catch (Exception ignored) { return 0; }
+        }
+        return 0;
+    }
+
     private void drawReward(Canvas c) {
         if (run == null) return;
         float y = pad;
@@ -1636,15 +1660,14 @@ public final class GameView extends View {
             PotionDef pd = PotionLibrary.get(rewardPotionId);
             if (pd != null) gift.append("   ·   药水「").append(pd.name).append("」");
         }
-        wrap(c, gift.toString(), pad, y, w - pad * 2, px(0.7f), INK_2, px(1.0f), 2);
-        y += px(2.0f);
+        y = wrap(c, gift.toString(), pad, y, w - pad * 2, px(0.7f), INK_2, px(1.0f), 2) + px(0.55f);
         if (bonusRewardText.length() > 0) {
             text(c, bonusRewardText, pad, y, px(0.58f), GRAY, serif, Paint.Align.LEFT);
             y += px(0.9f);
         }
         text(c, rewardTaken ? "已选择：" + rewardTakenName : "选择一张牌加入牌组（也可以跳过）", pad, y, px(0.65f), INK, sansBold, Paint.Align.LEFT);
         y += px(0.75f);
-        float rowH = Math.min(px(3.15f), (h - y - px(4.0f)) / Math.max(1, rewardChoices.size()) - px(0.4f));
+        float rowH = Math.min(px(4.3f), (h - y - px(3.9f)) / Math.max(1, rewardChoices.size()) - px(0.4f));
         rowH = Math.max(px(2.5f), rowH);
         for (int i = 0; i < rewardChoices.size(); i++) {
             CardInstance card = rewardChoices.get(i);
@@ -1825,9 +1848,9 @@ public final class GameView extends View {
         float y = h * 0.12f;
         textCenter(c, restUsed ? "余 烬" : "营 火", w / 2f, y, px(1.8f), INK, serifBold);
         textCenter(c, "在下一段路之前，让墨迹干一干。", w / 2f, y + px(1.05f), px(0.65f), GRAY, serif);
-        drawCampfire(c, w / 2f, y + px(3.4f), Math.min(w * 0.26f, px(7.2f)), restUsed);
+        drawCampfire(c, w / 2f, y + px(5.6f), Math.min(w * 0.20f, px(5.2f)), restUsed);
         if (restUsed) {
-            wrap(c, restResult, pad * 1.5f, y + px(6.0f), w - pad * 3f, px(0.78f), INK_2, px(1.15f), 4);
+            wrap(c, restResult, pad * 1.5f, y + px(8.6f), w - pad * 3f, px(0.78f), INK_2, px(1.15f), 4);
             RectF back = new RectF(w / 2f - px(4.3f), h - px(4.2f), w / 2f + px(4.3f), h - px(2.5f));
             button(c, back, "继续攀登", true, true, this::finishNode);
         } else {
@@ -1967,21 +1990,32 @@ public final class GameView extends View {
             RectF cont = new RectF(w / 2f - px(4.2f), h - px(4.1f), w / 2f + px(4.2f), h - px(2.4f));
             button(c, cont, "继续", true, true, this::finishNode);
         } else {
-            float by = Math.max(y + px(0.4f), h * 0.58f);
-            float bh = px(2.0f);
+            float by = Math.max(y + px(0.4f), h * 0.56f);
+            float bh = px(2.4f);
             for (int i = 0; i < event.choices.size(); i++) {
                 EventLibrary.Choice ch = event.choices.get(i);
+                int cost = goldCostOf(ch.label);
+                boolean afford = cost <= 0 || run.gold >= cost;
                 RectF r = new RectF(pad, by + i * (bh + px(0.45f)), w - pad, by + i * (bh + px(0.45f)) + bh);
-                fillRound(c, r, PAPER, px(0.16f));
-                strokeRound(c, r, INK_2, px(0.07f), px(0.16f));
-                text(c, fit(ch.label, px(0.72f), sansBold, w - pad * 2 - px(1.2f)), r.left + px(0.6f), r.top + px(0.8f), px(0.72f), INK, sansBold, Paint.Align.LEFT);
-                text(c, fit(ch.hint, px(0.56f), sans, w - pad * 2 - px(1.2f)), r.left + px(0.6f), r.top + px(1.43f), px(0.56f), GRAY, sans, Paint.Align.LEFT);
+                fillRound(c, r, afford ? PAPER : PAPER_2, px(0.16f));
+                strokeRound(c, r, afford ? INK_2 : LIGHT, px(0.07f), px(0.16f));
+                text(c, fit(ch.label, px(0.72f), sansBold, w - pad * 2 - px(1.2f)), r.left + px(0.6f), r.top + px(0.95f), px(0.72f), afford ? INK : GRAY, sansBold, Paint.Align.LEFT);
+                text(c, fit(ch.hint, px(0.6f), sans, w - pad * 2 - px(1.2f)), r.left + px(0.6f), r.top + px(1.72f), px(0.6f), afford ? GRAY : LIGHT, sans, Paint.Align.LEFT);
+                if (cost > 0) {
+                    textRight(c, run.gold >= cost ? "当前 " + run.gold : "不足 " + run.gold + "/" + cost,
+                            r.right - px(0.6f), r.bottom - px(0.45f), px(0.55f),
+                            run.gold >= cost ? GRAY : INK_2, sansBold);
+                }
                 final int idx = i;
-                hit(r, () -> {
-                    eventResult = EventLibrary.resolve(run, event, idx);
-                    if (eventResult == null || eventResult.length() == 0) eventResult = "什么也没有发生。";
-                    invalidate();
-                });
+                if (afford) {
+                    hit(r, () -> {
+                        eventResult = EventLibrary.resolve(run, event, idx);
+                        if (eventResult == null || eventResult.length() == 0) eventResult = "什么也没有发生。";
+                        invalidate();
+                    });
+                } else {
+                    hit(r, () -> toast = "金币不足：需要 " + cost + "，当前 " + run.gold + "。");
+                }
             }
         }
     }
@@ -2096,7 +2130,7 @@ public final class GameView extends View {
         if (badgeW > 0) {
             textRight(c, fit(badge, px(0.56f), sans, badgeW), r.right - px(0.45f), r.top + px(0.95f), px(0.56f), GRAY, sans);
         }
-        if (action != null) hit(r, action);
+        if (action != null && enabled) hit(r, action);
     }
 
     private void drawCardModal(Canvas c) {
@@ -2250,13 +2284,19 @@ public final class GameView extends View {
 
     private void drawToast(Canvas c) {
         if (toast == null || toast.length() == 0) return;
+        boolean changed = toastShown == null ? true : !toastShown.equals(toast);
+        if (changed) {
+            toastShown = toast;
+            removeCallbacks(toastClear);
+            postDelayed(toastClear, 2600);
+        }
         float maxW = w - pad * 3f;
         paint.setTypeface(sansBold);
         paint.setTextSize(px(0.65f));
         float tw = Math.min(paint.measureText(toast), maxW);
         float th = px(1.65f);
         float left = (w - tw - px(1.3f)) / 2f;
-        float top = h - px(5.2f);
+        float top = pad + px(1.72f);
         RectF r = new RectF(left, top, left + tw + px(1.3f), top + th);
         fillRound(c, r, INK, px(0.16f));
         textCenter(c, fit(toast, px(0.65f), sansBold, maxW), r.centerX(), r.centerY() + px(0.31f), px(0.65f), PAPER, sansBold);

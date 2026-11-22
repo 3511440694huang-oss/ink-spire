@@ -373,6 +373,20 @@ public final class TacticalAI {
                     // 抽了还得有能量打，否则等于空转
                     if (c.hand.size() <= 3 && c.energy >= 2) score = 36 + d.amount;
                     break;
+                case IRON_SKIN:
+                    if (c.turn <= 2 && livingHp >= 50) score = 42 + d.amount * 2;
+                    break;
+                case BLOCK_DRAW:
+                    if (lethal) score = 96 + d.amount;
+                    else if (missingBlock > 0) score = 40 + d.amount;
+                    break;
+                case HEAL_THORNS:
+                    if (c.hp * 100 <= c.maxHp * 55) score = 52 + d.amount;
+                    break;
+                case WEAK_VULN_ALL:
+                    if (c.living().size() >= 2 && c.turn <= 3) score = 40 + d.amount * 2;
+                    else if (incoming >= 18) score = 44;
+                    break;
                 case CLEANSE:
                     if (c.playerStatus(Status.WEAK) + c.playerStatus(Status.VULNERABLE) >= 3) score = 40;
                     break;

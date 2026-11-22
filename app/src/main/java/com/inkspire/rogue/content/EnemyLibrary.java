@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Bestiary of the ink tower. Four acts, each with six normal enemies, three elites and one boss.
+ * Bestiary of the ink tower. Four acts, each with eight normal enemies, three elites and one boss.
  * Every move uses only the effect kinds the combat engine can resolve for enemies.
  */
 public final class EnemyLibrary {
@@ -89,6 +89,25 @@ public final class EnemyLibrary {
                         MoveDef.of("flit", "扑灯", 9, Effect.damage(4, 2)).maxRepeat(1),
                         MoveDef.of("smudge", "蹭灰", 7, Effect.block(7), Effect.apply(Status.FRAIL, 1)).cooldown(1).maxRepeat(1),
                         MoveDef.of("shed", "褪翅", 5, Effect.block(4), Effect.power(Status.DEXTERITY, 2)).cooldown(2).maxRepeat(1).intent("防御")
+                )));
+
+        add(new EnemyDef("stain_blob", "渍斑", "渍",
+                "一滩没写完的墨，在墙脚慢慢摊开。它不追人，只是等你踩进来。",
+                EnemyDef.Tier.NORMAL, 0, 26, 30,
+                Arrays.asList(
+                        MoveDef.of("smear", "涂抹", 9, Effect.damage(5), Effect.apply(Status.WEAK, 1)),
+                        MoveDef.of("harden", "结壳", 6, Effect.block(8)).cooldown(1).maxRepeat(1).intent("防御"),
+                        MoveDef.of("cover", "覆盖", 7, Effect.damage(3, 2)).maxRepeat(2)
+                )));
+
+        add(new EnemyDef("paper_slice", "纸刃", "刃",
+                "一张裁得极薄的纸，边缘比刀还直。它飞起来的时候几乎没有声音。",
+                EnemyDef.Tier.NORMAL, 0, 22, 26,
+                Arrays.asList(
+                        MoveDef.of("cut", "割", 10, Effect.damage(4, 2)),
+                        MoveDef.of("curl", "卷边", 5, Effect.block(5), Effect.power(Status.STRENGTH, 1))
+                                .cooldown(2).maxRepeat(1).intent("蓄力"),
+                        MoveDef.of("throat", "划喉", 6, Effect.damage(9)).cooldown(1).maxRepeat(1)
                 )));
 
         add(new EnemyDef("binding_master", "装订巨匠", "装",
@@ -193,6 +212,26 @@ public final class EnemyLibrary {
                         MoveDef.of("wick", "捻芯", 6, Effect.heal(4), Effect.power(Status.STRENGTH, 2)).cooldown(3).maxRepeat(1).intent("蓄力")
                 )));
 
+        add(new EnemyDef("glue_pot", "胶锅", "胶",
+                "一口熬着旧胶的小锅，锅沿结着一圈发黄的边。它咕嘟一声，就有人被粘住。",
+                EnemyDef.Tier.NORMAL, 1, 34, 38,
+                Arrays.asList(
+                        MoveDef.of("splash", "泼胶", 9, Effect.damage(6), Effect.apply(Status.FRAIL, 1)),
+                        MoveDef.of("bubble", "冒泡", 6, Effect.damage(3), Effect.apply(Status.WEAK, 2))
+                                .cooldown(1).maxRepeat(1),
+                        MoveDef.of("thicken", "熬稠", 5, Effect.power(Status.STRENGTH, 2))
+                                .cooldown(2).maxRepeat(1).intent("强化")
+                )));
+
+        add(new EnemyDef("erasing_monk", "擦拭僧", "擦",
+                "他手里没有经卷，只有一块用旧的橡皮。走过的地方，字都变成了灰。",
+                EnemyDef.Tier.NORMAL, 1, 30, 34,
+                Arrays.asList(
+                        MoveDef.of("erase", "擦除", 9, Effect.damage(7), Effect.apply(Status.SHACKLE, 1)),
+                        MoveDef.of("flatten", "抹平", 6, Effect.block(10)).cooldown(1).maxRepeat(1).intent("防御"),
+                        MoveDef.of("rewrite", "重写", 7, Effect.damage(5, 2))
+                )));
+
         add(new EnemyDef("quiet_curator", "静默馆长", "馆",
                 "他把所有喧哗装进玻璃柜，标签写着「待整理」。你也在柜子里。",
                 EnemyDef.Tier.ELITE, 1, 92, 104,
@@ -295,6 +334,25 @@ public final class EnemyLibrary {
                         MoveDef.of("dry", "风干", 6, Effect.block(6), Effect.power(Status.STRENGTH, 3)).cooldown(3).maxRepeat(1).intent("蓄力")
                 )));
 
+        add(new EnemyDef("margin_worm", "页边虫", "边",
+                "它住在纸的最外面那一圈，靠啃食页边的空白长大。越靠近塔尖，它越粗。",
+                EnemyDef.Tier.NORMAL, 2, 42, 48,
+                Arrays.asList(
+                        MoveDef.of("chew", "啃边", 8, Effect.damage(8, 2)),
+                        MoveDef.of("coil", "蜷曲", 6, Effect.block(12)).cooldown(1).maxRepeat(1).intent("防御"),
+                        MoveDef.of("burrow", "钻入", 5, Effect.damage(14)).cooldown(2).maxRepeat(1)
+                )));
+
+        add(new EnemyDef("redaction_hand", "删改手", "删",
+                "一只只剩三根指头的手，握着黑笔，专挑别人写好的句子下手。",
+                EnemyDef.Tier.NORMAL, 2, 38, 44,
+                Arrays.asList(
+                        MoveDef.of("strike_out", "划掉", 9, Effect.damage(9), Effect.apply(Status.VULNERABLE, 2)),
+                        MoveDef.of("blacken", "涂黑", 6, Effect.apply(Status.WEAK, 2)).cooldown(1).maxRepeat(1),
+                        MoveDef.of("amend", "补笔", 5, Effect.power(Status.STRENGTH, 2), Effect.block(8))
+                                .cooldown(2).maxRepeat(1).intent("强化")
+                )));
+
         add(new EnemyDef("ouroboros_binder", "首尾装订者", "环",
                 "它把书的开头缝进结尾，于是故事再也停不下来。它说，这叫永恒。",
                 EnemyDef.Tier.ELITE, 2, 100, 110,
@@ -395,6 +453,24 @@ public final class EnemyLibrary {
                         MoveDef.of("turn_page", "翻页", 8, Effect.damage(9, 2), Effect.apply(Status.WEAK, 1)).cooldown(1).maxRepeat(1),
                         MoveDef.of("mark_page", "夹页", 6, Effect.block(18), Effect.power(Status.STRENGTH, 2)).cooldown(2).maxRepeat(1).intent("强化"),
                         MoveDef.of("reread", "重读", 6, Effect.heal(10), Effect.power(Status.REGEN, 2)).cooldown(3).maxRepeat(1).intent("自愈")
+                )));
+
+        add(new EnemyDef("blank_king", "空白之王", "空",
+                "它身上一个字也没有，却让所有靠近的人想起自己漏写的那一句。",
+                EnemyDef.Tier.NORMAL, 3, 52, 58,
+                Arrays.asList(
+                        MoveDef.of("empty_page", "空页", 8, Effect.damage(10)),
+                        MoveDef.of("leave_blank", "留白", 6, Effect.block(15)).cooldown(1).maxRepeat(1).intent("防御"),
+                        MoveDef.of("erase", "抹去", 5, Effect.damage(6, 3)).cooldown(2).maxRepeat(1)
+                )));
+
+        add(new EnemyDef("last_drop", "末滴", "滴",
+                "从笔尖悬了太久的一滴墨，落地之前已经想好了要落在哪里。",
+                EnemyDef.Tier.NORMAL, 3, 46, 52,
+                Arrays.asList(
+                        MoveDef.of("drip", "滴落", 9, Effect.damage(7), Effect.apply(Status.POISON, 2)),
+                        MoveDef.of("seep", "渗开", 6, Effect.apply(Status.POISON, 3)).cooldown(1).maxRepeat(1),
+                        MoveDef.of("coagulate", "凝墨", 5, Effect.damage(16)).cooldown(2).maxRepeat(1)
                 )));
 
         add(new EnemyDef("signatory", "落款人", "款",

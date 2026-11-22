@@ -47,7 +47,7 @@ public final class CharacterLibrary {
         ALL.add(new CharacterDef("ash", "灰烬", "烧掉半本书的人", "烬",
                 "烧掉的那部分，才是真正属于你的。",
                 "自伤 · 爆发 · 诅咒",
-                78, 111, "ember_box"));
+                84, 111, "ember_box"));
     }
 
     private CharacterLibrary() {}

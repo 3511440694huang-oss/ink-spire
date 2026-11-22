@@ -24,6 +24,7 @@ public final class RelicDef {
     public final int startDexterity;
     public final int startThorns;
     public final int startPoison;    // 战斗开始时给所有敌人 N 层中毒
+    public final int startWeakAll;   // 战斗开始时给所有敌人 N 层虚弱
     public final int loseHpStart;    // 战斗开始时失去 N 生命
 
     /* ---- 每回合 ---- */
@@ -37,6 +38,9 @@ public final class RelicDef {
     public final int attackBonus;    // 每次攻击每段额外 N 伤害
     public final int cardBlock;      // 每打出一张牌获得 N 格挡
     public final int cardPoison;     // 每打出一张攻击牌给目标 N 层中毒
+    public final int firstAttackBonus; // 每场战斗第一张攻击牌额外 N 伤害
+    public final int statusBlock;      // 每抽到一张诅咒/状态牌获得 N 格挡
+    public final int potionHeal;       // 每使用一瓶药水回复 N 生命
 
     /* ---- 结算 ---- */
     public final int restHeal;          // 营火休息额外回复 N
@@ -59,11 +63,14 @@ public final class RelicDef {
         this.startBlock = b.startBlock; this.firstTurnEnergy = b.firstTurnEnergy;
         this.startDraw = b.startDraw; this.startStrength = b.startStrength;
         this.startDexterity = b.startDexterity; this.startThorns = b.startThorns;
-        this.startPoison = b.startPoison; this.loseHpStart = b.loseHpStart;
+        this.startPoison = b.startPoison; this.startWeakAll = b.startWeakAll;
+        this.loseHpStart = b.loseHpStart;
         this.energyPerTurn = b.energyPerTurn; this.drawPerTurn = b.drawPerTurn;
         this.blockPerTurn = b.blockPerTurn; this.strengthPerTurn = b.strengthPerTurn;
         this.dexterityPerTurn = b.dexterityPerTurn;
         this.attackBonus = b.attackBonus; this.cardBlock = b.cardBlock; this.cardPoison = b.cardPoison;
+        this.firstAttackBonus = b.firstAttackBonus; this.statusBlock = b.statusBlock;
+        this.potionHeal = b.potionHeal;
         this.restHeal = b.restHeal; this.goldPercent = b.goldPercent;
         this.postCombatHeal = b.postCombatHeal; this.postCombatHealLow = b.postCombatHealLow;
         this.eliteCardBonus = b.eliteCardBonus;
@@ -81,9 +88,10 @@ public final class RelicDef {
         private final Hook hook;
         private int maxHp, potionSlots, shopDiscount;
         private int startBlock, firstTurnEnergy, startDraw, startStrength, startDexterity, startThorns;
-        private int startPoison, loseHpStart;
+        private int startPoison, startWeakAll, loseHpStart;
         private int energyPerTurn, drawPerTurn, blockPerTurn, strengthPerTurn, dexterityPerTurn;
         private int attackBonus, cardBlock, cardPoison;
+        private int firstAttackBonus, statusBlock, potionHeal;
         private int restHeal, goldPercent, postCombatHeal, postCombatHealLow, eliteCardBonus;
         private boolean penNib, freeFirstPower, eggAttack, eggSkill, eggPower;
 
@@ -102,6 +110,7 @@ public final class RelicDef {
         public Builder startDexterity(int v) { startDexterity = v; return this; }
         public Builder startThorns(int v) { startThorns = v; return this; }
         public Builder startPoison(int v) { startPoison = v; return this; }
+        public Builder startWeakAll(int v) { startWeakAll = v; return this; }
         public Builder loseHpStart(int v) { loseHpStart = v; return this; }
         public Builder energyPerTurn(int v) { energyPerTurn = v; return this; }
         public Builder drawPerTurn(int v) { drawPerTurn = v; return this; }
@@ -111,6 +120,9 @@ public final class RelicDef {
         public Builder attackBonus(int v) { attackBonus = v; return this; }
         public Builder cardBlock(int v) { cardBlock = v; return this; }
         public Builder cardPoison(int v) { cardPoison = v; return this; }
+        public Builder firstAttackBonus(int v) { firstAttackBonus = v; return this; }
+        public Builder statusBlock(int v) { statusBlock = v; return this; }
+        public Builder potionHeal(int v) { potionHeal = v; return this; }
         public Builder restHeal(int v) { restHeal = v; return this; }
         public Builder goldPercent(int v) { goldPercent = v; return this; }
         public Builder postCombatHeal(int v) { postCombatHeal = v; return this; }

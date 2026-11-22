@@ -81,11 +81,11 @@ public final class CardsAsh {
                 .build());
 
         list.add(attackAll("ash_scorch", "焚手", 1, Rarity.COMMON)
-                .description("失去3点生命，对所有敌人造成5点伤害。")
+                .description("失去2点生命，对所有敌人造成7点伤害。")
                 .flavor("手掌先烧起来，然后才是别人的脸。")
-                .effects(Effect.loseHp(3), Effect.damageAll(5))
-                .plus("焚手+", "失去3点生命，对所有敌人造成7点伤害。", 1,
-                        Effect.loseHp(3), Effect.damageAll(7))
+                .effects(Effect.loseHp(2), Effect.damageAll(7))
+                .plus("焚手+", "失去2点生命，对所有敌人造成9点伤害。", 1,
+                        Effect.loseHp(2), Effect.damageAll(9))
                 .build());
 
         list.add(attack("ash_rip", "划开", 1, Rarity.COMMON)
@@ -97,11 +97,11 @@ public final class CardsAsh {
                 .build());
 
         list.add(attack("ash_bone_blade", "骨刃", 2, Rarity.COMMON)
-                .description("失去3点生命，造成14点伤害。")
+                .description("失去2点生命，造成17点伤害。")
                 .flavor("取一根自己的骨头，磨到能割纸。")
-                .effects(Effect.loseHp(3), Effect.damage(14))
-                .plus("骨刃+", "失去3点生命，造成17点伤害。", 2,
-                        Effect.loseHp(3), Effect.damage(17))
+                .effects(Effect.loseHp(2), Effect.damage(17))
+                .plus("骨刃+", "失去2点生命，造成20点伤害。", 2,
+                        Effect.loseHp(2), Effect.damage(20))
                 .build());
 
         list.add(attackAll("ash_ashfall", "落灰", 1, Rarity.COMMON)
@@ -208,18 +208,18 @@ public final class CardsAsh {
         /* ---- 罕见 · 技能 ---- */
 
         list.add(skill("ash_blood_pull", "血引", 0, Rarity.UNCOMMON)
-                .description("失去4点生命，获得2点能量。")
+                .description("失去3点生命，获得2点能量。")
                 .flavor("开一道口子，光就照进来了。")
-                .effects(Effect.loseHp(4), Effect.energy(2))
-                .plus("血引+", "失去4点生命，获得3点能量。", 0,
-                        Effect.loseHp(4), Effect.energy(3))
+                .effects(Effect.loseHp(3), Effect.energy(2))
+                .plus("血引+", "失去3点生命，获得3点能量。", 0,
+                        Effect.loseHp(3), Effect.energy(3))
                 .build());
 
         list.add(skill("ash_gray_armor", "灰甲", 2, Rarity.UNCOMMON)
-                .description("获得14点格挡。")
+                .description("获得16点格挡。")
                 .flavor("烧出来的壳，一敲就是一片响。")
-                .effects(Effect.block(14))
-                .plus("灰甲+", "获得18点格挡。", 2, Effect.block(18))
+                .effects(Effect.block(16))
+                .plus("灰甲+", "获得20点格挡。", 2, Effect.block(20))
                 .build());
 
         list.add(skill("ash_burn_fuel", "烧薪", 1, Rarity.UNCOMMON)
@@ -253,6 +253,98 @@ public final class CardsAsh {
                 .effects(Effect.power(Status.METALLICIZE, 3))
                 .plus("灰釉+", "每回合结束时获得4点格挡。", 1,
                         Effect.power(Status.METALLICIZE, 4))
+                .build());
+
+        /* ---- 罕见（补充：血换伤、毒、消耗、燃能） ---- */
+
+        list.add(attack("ash_blood_feast", "血宴", 2, Rarity.UNCOMMON)
+                .description("失去3点生命，造成20点伤害。消耗。")
+                .flavor("先割自己，再割别人，刀口一直没凉过。")
+                .exhaust()
+                .plusExhaust()
+                .effects(Effect.loseHp(3), Effect.damage(20))
+                .plus("血宴+", "失去3点生命，造成25点伤害。消耗。", 2,
+                        Effect.loseHp(3), Effect.damage(25))
+                .build());
+
+        list.add(attackAll("ash_cinder_trail", "烬迹", 1, Rarity.UNCOMMON)
+                .description("对所有敌人造成6点伤害，使所有敌人获得1层易伤。")
+                .flavor("走过的路自己烧起来，回头就看不见了。")
+                .effects(Effect.damageAll(6), Effect.applyAll(Status.VULNERABLE, 1))
+                .plus("烬迹+", "对所有敌人造成8点伤害，使所有敌人获得2层易伤。", 1,
+                        Effect.damageAll(8), Effect.applyAll(Status.VULNERABLE, 2))
+                .build());
+
+        list.add(attack("ash_grave_hand", "墓手", 2, Rarity.UNCOMMON)
+                .description("造成9点伤害，使目标获得2层虚弱。")
+                .flavor("土里的手伸出来，只是想再翻一页。")
+                .effects(Effect.damage(9), Effect.apply(Status.WEAK, 2))
+                .plus("墓手+", "造成12点伤害，使目标获得3层虚弱。", 2,
+                        Effect.damage(12), Effect.apply(Status.WEAK, 3))
+                .build());
+
+        list.add(skill("ash_poison_mist", "毒雾", 2, Rarity.UNCOMMON)
+                .description("使所有敌人获得4层中毒，失去3点生命。")
+                .flavor("雾是墨熬的，吸进去的字会烂在肺里。")
+                .effects(Effect.applyAll(Status.POISON, 4), Effect.loseHp(3))
+                .plus("毒雾+", "使所有敌人获得6层中毒，失去3点生命。", 2,
+                        Effect.applyAll(Status.POISON, 6), Effect.loseHp(3))
+                .build());
+
+        list.add(skill("ash_ember_shell", "烬壳", 1, Rarity.UNCOMMON)
+                .description("获得9点格挡，失去2点生命。")
+                .flavor("壳还烫手，但至少挡得住第一下。")
+                .effects(Effect.block(9), Effect.loseHp(2))
+                .plus("烬壳+", "获得13点格挡，失去2点生命。", 1, Effect.block(13), Effect.loseHp(2))
+                .build());
+
+        list.add(skill("ash_fuel_drop", "添薪", 1, Rarity.UNCOMMON)
+                .description("获得2点力量，失去4点生命。")
+                .flavor("把自己添进去，火才肯再高一点。")
+                .effects(Effect.power(Status.STRENGTH, 2), Effect.loseHp(4))
+                .plus("添薪+", "获得3点力量，失去4点生命。", 1,
+                        Effect.power(Status.STRENGTH, 3), Effect.loseHp(4))
+                .build());
+
+        list.add(skill("ash_burn_book", "焚书", 2, Rarity.UNCOMMON)
+                .description("随机消耗2张手牌，抽3张牌。")
+                .flavor("整本都烧了，灰里的字反而更清楚。")
+                .effects(Effect.exhaustRandom(2), Effect.draw(3))
+                .plus("焚书+", "随机消耗2张手牌，抽4张牌。", 2,
+                        Effect.exhaustRandom(2), Effect.draw(4))
+                .build());
+
+        list.add(skill("ash_scar_tissue", "疤痕", 2, Rarity.UNCOMMON)
+                .description("回复6点生命，获得6点格挡。")
+                .flavor("结痂的地方最硬，也最不听话。")
+                .effects(Effect.heal(6), Effect.block(6))
+                .plus("疤痕+", "回复9点生命，获得9点格挡。", 2, Effect.heal(9), Effect.block(9))
+                .build());
+
+        list.add(attack("ash_ember_dust", "灰烬尘", 0, Rarity.UNCOMMON)
+                .description("造成3点伤害，使目标获得1层中毒。消耗。")
+                .flavor("吹一口气，整条走廊都在咳。")
+                .exhaust()
+                .plusExhaust()
+                .effects(Effect.damage(3), Effect.apply(Status.POISON, 1))
+                .plus("灰烬尘+", "造成5点伤害，使目标获得1层中毒。消耗。", 0,
+                        Effect.damage(5), Effect.apply(Status.POISON, 1))
+                .build());
+
+        list.add(skill("ash_smoke_veil", "烟幕", 1, Rarity.UNCOMMON)
+                .description("获得6点格挡，使所有敌人获得1层虚弱。")
+                .flavor("烟一起来，谁也数不清台阶有几级。")
+                .effects(Effect.block(6), Effect.applyAll(Status.WEAK, 1))
+                .plus("烟幕+", "获得9点格挡，使所有敌人获得2层虚弱。", 1,
+                        Effect.block(9), Effect.applyAll(Status.WEAK, 2))
+                .build());
+
+        list.add(power("ash_thorn_ash", "灰刺", 1, Rarity.UNCOMMON)
+                .description("获得3点荆棘，失去2点生命。")
+                .flavor("灰里掺了玻璃渣，抓一把就忘不掉。")
+                .effects(Effect.power(Status.THORNS, 3), Effect.loseHp(2))
+                .plus("灰刺+", "获得4点荆棘，失去2点生命。", 1,
+                        Effect.power(Status.THORNS, 4), Effect.loseHp(2))
                 .build());
 
         /* ---- 稀有 · 攻击 ---- */
@@ -300,6 +392,73 @@ public final class CardsAsh {
                 .effects(Effect.power(Status.THORNS, 4), Effect.power(Status.METALLICIZE, 3))
                 .plus("余烬之躯+", "获得6层荆棘；每回合结束时获得4点格挡。", 2,
                         Effect.power(Status.THORNS, 6), Effect.power(Status.METALLICIZE, 4))
+                .build());
+
+        list.add(attackAll("ash_inferno", "炼狱", 3, Rarity.RARE)
+                .description("对所有敌人造成2次10点伤害，失去6点生命。")
+                .flavor("火是从最底下那层开始烧的，往上一直烧到落款。")
+                .effects(Effect.damageAll(10, 2), Effect.loseHp(6))
+                .plus("炼狱+", "对所有敌人造成2次13点伤害，失去6点生命。", 3,
+                        Effect.damageAll(13, 2), Effect.loseHp(6))
+                .build());
+
+        list.add(power("ash_demon_heart", "魔心", 3, Rarity.RARE)
+                .description("每回合开始时获得2点力量。")
+                .flavor("胸腔里那点火不肯灭，只好让它烧。")
+                .effects(Effect.power(Status.DEMON_FORM, 2))
+                .plus("魔心+", "每回合开始时获得3点力量。", 3,
+                        Effect.power(Status.DEMON_FORM, 3))
+                .build());
+
+        list.add(skill("ash_blood_pact", "血契", 1, Rarity.RARE)
+                .description("失去6点生命，抽3张牌，获得2点能量。消耗。")
+                .flavor("签的时候没读条款，签完才发现是自己。")
+                .exhaust()
+                .plusExhaust()
+                .effects(Effect.loseHp(6), Effect.draw(3), Effect.energy(2))
+                .plus("血契+", "失去6点生命，抽4张牌，获得2点能量。消耗。", 1,
+                        Effect.loseHp(6), Effect.draw(4), Effect.energy(2))
+                .build());
+
+        list.add(power("ash_immortal_ash", "不灭灰", 2, Rarity.RARE)
+                .description("每当你失去生命，获得1点力量。")
+                .flavor("烧过的东西不会真的消失，它只是变得更硬。")
+                .effects(Effect.power(Status.RUPTURE, 1))
+                .plus("不灭灰+", "每当你失去生命，获得2点力量。", 2,
+                        Effect.power(Status.RUPTURE, 2))
+                .build());
+
+        list.add(skill("ash_venom_heart", "毒心", 2, Rarity.RARE)
+                .description("使所有敌人获得6层中毒，抽1张牌。")
+                .flavor("心跳一次，血里的墨就浓一分。")
+                .effects(Effect.applyAll(Status.POISON, 6), Effect.draw(1))
+                .plus("毒心+", "使所有敌人获得9层中毒，抽1张牌。", 2,
+                        Effect.applyAll(Status.POISON, 9), Effect.draw(1))
+                .build());
+
+        list.add(skill("ash_last_breath", "最后一口气", 2, Rarity.RARE)
+                .description("回复10点生命，获得10点格挡。消耗。")
+                .flavor("吸进去的灰，最后都变成了墙。")
+                .exhaust()
+                .plusExhaust()
+                .effects(Effect.heal(10), Effect.block(10))
+                .plus("最后一口气+", "回复14点生命，获得14点格挡。消耗。", 2,
+                        Effect.heal(14), Effect.block(14))
+                .build());
+
+        list.add(power("ash_burning_ritual", "燃祭", 2, Rarity.RARE)
+                .description("每回合开始时获得1点能量。")
+                .flavor("每天喂它一页，它就替你多活一天。")
+                .effects(Effect.power(Status.BERSERK, 1))
+                .plus("燃祭+", "每回合开始时获得1点能量；每回合开始时失去1点生命，抽1张牌。", 2,
+                        Effect.power(Status.BERSERK, 1), Effect.power(Status.BRUTALITY, 1))
+                .build());
+
+        list.add(attackAll("ash_cinder_storm", "烬暴", 2, Rarity.RARE)
+                .description("对所有敌人造成3次5点伤害。")
+                .flavor("风把整座塔的灰都卷了起来，像一场倒着下的雪。")
+                .effects(Effect.damageAll(5, 3))
+                .plus("烬暴+", "对所有敌人造成3次6点伤害。", 2, Effect.damageAll(6, 3))
                 .build());
 
         return list;

@@ -369,13 +369,13 @@ public final class CardLibrary {
                 .build());
 
         list.add(attackAll("reaper", "收割", 2, Rarity.RARE)
-                .description("对所有敌人造成4点伤害。回复等同于未被格挡伤害的生命。消耗。")
+                .description("对所有敌人造成6点伤害。回复等同于未被格挡伤害的生命。消耗。")
                 .flavor("镰刀过处，墨回灌进执笔人的腕。")
                 .exhaust()
                 .plusExhaust()
                 .healUnblocked()
-                .effects(Effect.damageAll(4))
-                .plus("收割+", "对所有敌人造成5点伤害。回复等同于未被格挡伤害的生命。消耗。", 2,
+                .effects(Effect.damageAll(6))
+                .plus("收割+", "对所有敌人造成8点伤害。回复等同于未被格挡伤害的生命。消耗。", 2,
                         Effect.damageAll(5))
                 .build());
 
@@ -453,10 +453,10 @@ public final class CardLibrary {
                 .build());
 
         list.add(skill("entrench", "巩固", 2, Rarity.RARE)
-                .description("获得15点格挡。")
+                .description("使你的格挡翻倍。")
                 .flavor("一层压一层，像没人翻过的书。")
-                .effects(Effect.block(15))
-                .plus("巩固+", "获得22点格挡。", 2, Effect.block(22))
+                .effects(Effect.doubleBlock())
+                .plus("巩固+", "使你的格挡翻倍。", 1, Effect.doubleBlock())
                 .build());
 
         /* ---- 罕见 · 技能 ---- */
@@ -676,9 +676,9 @@ public final class CardLibrary {
                 .build());
 
         list.add(CardDef.builder("curse_bind", "缠结", 0, CardType.CURSE, Rarity.SPECIAL, Target.NONE)
-                .description("无法打出。回合结束时若在手牌，失去1点生命。")
+                .description("无法打出。抽到时获得1层虚弱。")
                 .flavor("线头找不到，越拉越紧。")
-                .handEndTurnLoseHp(1)
+                .handTurnStartWeak(1)
                 .build());
 
         list.add(CardDef.builder("status_wound", "伤口", 0, CardType.STATUS, Rarity.SPECIAL, Target.NONE)
